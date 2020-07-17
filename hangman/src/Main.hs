@@ -133,11 +133,13 @@ handleGuess puzzle guess = do
 
 gameOver :: Puzzle -> IO ()
 gameOver (Puzzle wordToGuess _ guessed) =
-  if (length guessed) > 12 then
+  if (length wrongGuesses) > 5 then
     do putStrLn "You lose!"
        putStrLn $ "The word was: " ++ wordToGuess
        exitSuccess
   else return ()
+  where wrongGuesses = filter isWrong guessed
+        isWrong letter = notElem letter wordToGuess
 
 -- Check if the player win
 
