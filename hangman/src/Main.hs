@@ -9,7 +9,8 @@ import System.Random (randomRIO)
 
 -- Type synom for better readability
 
-type WordList = [String]
+newtype WordList =
+  WordList [String]
 
 -- Word's size bounds
 
@@ -24,24 +25,24 @@ maxWordLength = 9
 allWords :: IO WordList
 allWords = do
   dict <- readFile "data/dict.txt"
-  return (lines dict)
+  return $ WordList (lines dict)
 
 -- Filter words based in the previous bounds
 
 gameWords :: IO WordList
 gameWords = do
-  aw <- allWords
-  return (filter gameLength aw)
+  (WordList aw) <- allWords
+  return $ WordList (filter gameLength aw)
   where gameLength w =
-          let l = length (w :: String)
+          let l = length w
           in l >= minWordLength
              && l < maxWordLength
 
 -- Get a random word from a word list
 
 randomWord :: WordList -> IO String
-randomWord wl = do
-  randomIndex <- randomRIO (0, length wl)
+randomWord (WordList wl) = do
+  randomIndex <- randomRIO (0, (length wl) - 1)
   return $ wl !! randomIndex
 
 -- Get a random word from the gameWords value
