@@ -43,15 +43,15 @@ instance Semigroup (Or a b) where
   (<>) _ (Snd x) = Snd x
   (<>) _ (Fst x) = Fst x
 
-newtype Combine a b = Combine { unCombine :: (a -> b) }
+newtype Combine a b = Combine { unCombine :: a -> b }
 
 instance Semigroup b => Semigroup (Combine a b) where
   (<>) (Combine f) (Combine g) = Combine (\x -> f x <> g x)
 
-newtype Comp a = Comp { unComp :: (a -> a) }
+newtype Comp a = Comp { unComp :: a -> a }
 
 instance Semigroup a => Semigroup (Comp a) where
-  (<>) (Comp { unComp = f }) (Comp { unComp = g }) = Comp $ f <> g
+  (<>) Comp { unComp = f } Comp { unComp = g } = Comp $ f <> g
 
 data Validation a b = Failure a
                     | Success b

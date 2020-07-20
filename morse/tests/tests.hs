@@ -20,7 +20,7 @@ prop_thereAndBackAgain :: Property
 prop_thereAndBackAgain =
   forAll charGen
   (\c ->
-      ((charToMorse c) >>= morseToChar) == Just c)
+      (charToMorse c >>= morseToChar) == Just c)
 
 main :: IO ()
 main = quickCheck prop_thereAndBackAgain

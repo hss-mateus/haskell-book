@@ -1,6 +1,6 @@
 module Main where
 
-import Control.Monad (forever)
+import Control.Monad (forever, when)
 import Data.Char (toLower)
 import Data.Maybe (isJust)
 import Data.List (intersperse)
@@ -42,7 +42,7 @@ gameWords = do
 
 randomWord :: WordList -> IO String
 randomWord (WordList wl) = do
-  randomIndex <- randomRIO (0, (length wl) - 1)
+  randomIndex <- randomRIO (0, length wl - 1)
   return $ wl !! randomIndex
 
 -- Get a random word from the gameWords value
@@ -66,8 +66,7 @@ data Puzzle =
 
 instance Show Puzzle where
   show (Puzzle _ discovered guessed) =
-    (intersperse ' ' $
-     fmap renderPuzzleChar discovered)
+    intersperse ' ' $ fmap renderPuzzleChar discovered
     ++ " Guessed so far: " ++ guessed
 
 -- Generate a new puzzle based on a word
@@ -81,13 +80,13 @@ freshPuzzle answer =
 
 charInWord :: Puzzle -> Char -> Bool
 charInWord (Puzzle answer _ _) guess =
-  elem guess answer
+  guess `elem` answer
 
 -- Check if that letter have already guessed
 
 alreadyGuessed :: Puzzle -> Char -> Bool
 alreadyGuessed (Puzzle _ _ guessed) guess =
-  elem guess guessed
+  guess `elem` guessed
 
 -- Turn a not guessed letter in a underscore
 
@@ -133,22 +132,20 @@ handleGuess puzzle guess = do
 
 gameOver :: Puzzle -> IO ()
 gameOver (Puzzle wordToGuess _ guessed) =
-  if (length wrongGuesses) > 5 then
+  when (length wrongGuesses > 5) $
     do putStrLn "You lose!"
        putStrLn $ "The word was: " ++ wordToGuess
        exitSuccess
-  else return ()
-  where wrongGuesses = filter isWrong guessed
-        isWrong letter = notElem letter wordToGuess
+         where wrongGuesses = filter isWrong guessed
+               isWrong letter = letter `notElem` wordToGuess
 
 -- Check if the player win
 
 gameWin :: Puzzle -> IO ()
 gameWin (Puzzle _ filledInSoFar _) =
-  if all isJust filledInSoFar then
+  when (all isJust filledInSoFar) $
     do putStrLn "You win!"
        exitSuccess
-  else return ()
 
 -- A infinite loop that runs the game
 

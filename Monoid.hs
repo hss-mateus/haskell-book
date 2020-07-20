@@ -1,3 +1,5 @@
+{-# LANGUAGE TupleSections #-}
+
 module Monoid where
 
 import Semigroup
@@ -24,10 +26,10 @@ instance (Monoid a) => Monoid (Comp a) where
 newtype Mem s a = Mem { runMem :: s -> (a, s) }
 
 instance (Semigroup a) => Semigroup (Mem s a) where
-  (<>) (Mem { runMem = f }) (Mem { runMem = g }) =
+  (<>) Mem { runMem = f } Mem { runMem = g } =
     Mem $ \x -> let (a, b) = g x
                     (c, d) = f b
                 in (a <> c, d)
 
 instance Monoid a => Monoid (Mem s a) where
-  mempty = Mem $ \s -> (mempty, s)
+  mempty = Mem (mempty,)

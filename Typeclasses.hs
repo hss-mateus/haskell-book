@@ -25,7 +25,7 @@ instance Eq Date where
   (==) (Date weekday dayOfMonth) (Date weekday' dayOfMonth') =
     weekday == weekday' && dayOfMonth == dayOfMonth'
 
-data TisAnInteger = TisAn Integer
+newtype TisAnInteger = TisAn Integer
 
 instance Eq TisAnInteger where
   (==) (TisAn x) (TisAn y) = x == y
