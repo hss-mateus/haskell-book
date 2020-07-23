@@ -90,9 +90,9 @@ data List a = Nil
             | Cons a (List a)
             deriving (Eq, Show)
 
-append :: List a -> List a -> List a
-append Nil ys = ys
-append (Cons x xs) ys = Cons x $ append xs ys
+instance Semigroup (List a) where
+  (<>) Nil xs         = xs
+  (<>) (Cons x xs) ys = Cons x (xs <> ys)
 
 instance Functor List where
   fmap _ Nil = Nil
@@ -101,10 +101,7 @@ instance Functor List where
 instance Applicative List where
   pure x = Cons x Nil
   (<*>) Nil _ = Nil
-  (<*>) _ Nil = Nil
-  (<*>) (Cons f fs) (Cons x xs) = append fmapF fmapFs
-    where fmapF = f <$> Cons x xs
-          fmapFs = fs <*> Cons x xs
+  (<*>) (Cons f fs) xs = (f <$> xs) <> (fs <*> xs)
 
 -- ZipList
 
@@ -112,16 +109,15 @@ newtype ZipList' a =
   ZipList' (List a)
   deriving (Eq, Show)
 
+instance Semigroup (ZipList' a) where
+  (<>) (ZipList' xs) (ZipList' ys) = ZipList' (xs <> ys)
+
 instance Functor ZipList' where
   fmap f (ZipList' xs) = ZipList' $ fmap f xs
 
 instance Applicative ZipList' where
   pure x = ZipList' $ pure x
-  (<*>) (ZipList' Nil) _ = ZipList' Nil
-  (<*>) _ (ZipList' Nil) = ZipList' Nil
-  (<*>) (ZipList' (Cons f fs)) (ZipList' (Cons x xs)) = ZipList' $ append appHead appTail
-    where appHead = Cons (f x) Nil
-          (ZipList' appTail) = ZipList' fs <*> ZipList' xs
+  (<*>) (ZipList' fs) (ZipList' xs) = ZipList' $ fs <*> xs
 
 -- Validation
 
